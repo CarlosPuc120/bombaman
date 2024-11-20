@@ -125,75 +125,65 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  List<int> fire = [
-    -1
-  ];
+  List<int> fire = [-1];
 
   void placeBomb() {
     setState(() {
       bombPosition = playerPosition;
       fire.clear();
 
-      Timer(const Duration(milliseconds: 1000), (){
-       setState(() {
+      // Temporizador para detonar la bomba después de 1 segundo
+      Timer(const Duration(milliseconds: 1000), () {
+        setState(() {
+          fire.add(bombPosition); // Centro de la explosión
 
-        fire.add(bombPosition);  
-        fire.add(bombPosition +-0);
-        fire.add(bombPosition +1);
-        fire.add(bombPosition -10);
-        fire.add(bombPosition +10);
+          // Explosión en las 4 direcciones
+          addExplosionInDirection(bombPosition, -1, 1); // Izquierda
+          addExplosionInDirection(bombPosition, 1, 1); // Derecha
+          addExplosionInDirection(bombPosition, -10, 1); // Arriba
+          addExplosionInDirection(bombPosition, 10, 1); // Abajo
+        });
 
-       });
-       clearFire();
+        clearFire(); // Limpiar el fuego después de un tiempo
       });
-
     });
   }
+
   void addExplosionInDirection(int start, int step, int range) {
-  for (int i = 1; i <= range; i++) {
-    int nextPosition = start + step * i;
+    for (int i = 1; i <= range; i++) {
+      int nextPosition = start + step * i;
 
-    // Detener si la posición está fuera de los límites del grid
-    if (nextPosition < 0 || nextPosition >= numberOfSquares) break;
+      // Detener si la posición está fuera de los límites del grid
+      if (nextPosition < 0 || nextPosition >= numberOfSquares) break;
 
-    // Detener si encuentra una barrera
-    if (barriers.contains(nextPosition)) break;
+      // Detener si encuentra una barrera
+      if (barriers.contains(nextPosition)) break;
 
-    // Añadir posición afectada por la explosión
-    fire.add(nextPosition);
+      // Añadir posición afectada por la explosión
+      fire.add(nextPosition);
 
-    // Si encuentra una caja, detén la explosión y elimínala
-    if (boxes.contains(nextPosition)) {
-      boxes.remove(nextPosition);
-      break;
+      // Si encuentra una caja, detén la explosión y elimínala
+      if (boxes.contains(nextPosition)) {
+        boxes.remove(nextPosition);
+        break;
+      }
+
+      // Detener si la explosión atraviesa bordes del grid
+      if (step == 1 && nextPosition % 10 == 0) break; // Cruce hacia la derecha
+      if (step == -1 && nextPosition % 10 == 9) break; // Cruce hacia la izquierda
     }
-
-    // Detener si la explosión atraviesa bordes del grid
-    if (step == 1 && nextPosition % 10 == 0) break; // Cruce hacia la derecha
-    if (step == -1 && nextPosition % 10 == 9) break; // Cruce hacia la izquierda
   }
-}
 
-void clearFire(){
-  setState(() {
-   Timer(const Duration(milliseconds: 500), (){
-       setState(() {
-         
-          for(int i=0; i<fire.length; i++){
-            if (boxes.contains(fire[i]) ){
-              boxes.remove(fire[i]);
-            }
-          }
-           fire.clear();
-           bombPosition = -1;
-       });
+  void clearFire() {
+    setState(() {
+      Timer(const Duration(milliseconds: 500), () {
+        setState(() {
+          fire.clear();
+          bombPosition = -1;
+        });
       });
-  });
-}
-
-void destroyBoxes(){
-
-}
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -211,27 +201,29 @@ void destroyBoxes(){
                   crossAxisCount: 10,
                 ),
                 itemBuilder: (BuildContext context, int index) {
-                   if (fire.contains(index)) {
+                  if (fire.contains(index)) {
                     return MyPixel(
-                        innerColor: Colors.red,
-                        outerColor: Colors.red[800],
-                        );
+                      innerColor: Colors.red,
+                      outerColor: Colors.red[800],
+                    );
                   } else if (bombPosition == index) {
-                    return MyPixel(innerColor: Colors.green,
-                    outerColor: Colors.green[800],
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Image.asset('lib/images/Pokeball.png'),
-                    ),);
+                    return MyPixel(
+                      innerColor: Colors.green,
+                      outerColor: Colors.green[800],
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Image.asset('lib/images/Pokeball.png'),
+                      ),
+                    );
                   } else if (playerPosition == index) {
                     return MyPixel(
-                        innerColor: Colors.green,
-                        outerColor: Colors.green[800],
-                          child: Padding(
-                            padding: const EdgeInsets.all(4.0),
-                            child: Image.asset('lib/images/528079.png'),
-                          ),
-                        );
+                      innerColor: Colors.green,
+                      outerColor: Colors.green[800],
+                      child: Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: Image.asset('lib/images/528079.png'),
+                      ),
+                    );
                   } else if (barriers.contains(index)) {
                     return MyPixel(
                       innerColor: Colors.black,
@@ -244,12 +236,14 @@ void destroyBoxes(){
                     );
                   } else {
                     return MyPixel(
-                  innerColor: Colors.green,
-                  outerColor: Colors.green[800],);
+                      innerColor: Colors.green,
+                      outerColor: Colors.green[800],
+                    );
                   }
                 }),
           ),
 
+          // Controles
           Expanded(
             child: Column(
               children: [
@@ -278,7 +272,6 @@ void destroyBoxes(){
                   ],
                 ),
 
-                // Second row of buttons
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -321,7 +314,6 @@ void destroyBoxes(){
                   ],
                 ),
 
-                // Third row of buttons
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

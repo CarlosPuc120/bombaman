@@ -14,7 +14,7 @@ class MyPixel extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(6),
         child: Container(
-          padding: EdgeInsets.all(5),
+          padding: const EdgeInsets.all(5),
           color: outerColor,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(10),
