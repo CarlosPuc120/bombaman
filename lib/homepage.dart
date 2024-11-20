@@ -150,6 +150,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void addExplosionInDirection(int start, int step, int range) {
+    int startColumn = start % 10; // Calcula la columna inicial
     for (int i = 1; i <= range; i++) {
       int nextPosition = start + step * i;
 
@@ -159,6 +160,11 @@ class _HomePageState extends State<HomePage> {
       // Detener si encuentra una barrera
       if (barriers.contains(nextPosition)) break;
 
+      // Detener si atraviesa los bordes del mapa
+      int nextColumn = nextPosition % 10;
+      if (step == 1 && nextColumn <= startColumn) break; // Cruce hacia la derecha
+      if (step == -1 && nextColumn >= startColumn) break; // Cruce hacia la izquierda
+
       // Añadir posición afectada por la explosión
       fire.add(nextPosition);
 
@@ -167,11 +173,7 @@ class _HomePageState extends State<HomePage> {
         boxes.remove(nextPosition);
         break;
       }
-
-      // Detener si la explosión atraviesa bordes del grid
-      if (step == 1 && nextPosition % 10 == 0) break; // Cruce hacia la derecha
-      if (step == -1 && nextPosition % 10 == 9) break; // Cruce hacia la izquierda
-    }
+   }
   }
 
   void clearFire() {
