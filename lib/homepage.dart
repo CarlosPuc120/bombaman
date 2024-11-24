@@ -1,8 +1,8 @@
-import 'dart:async';
+ import 'dart:async';
 import 'package:bombaman/button.dart';
 import 'package:bombaman/pixel.dart';
 import 'package:flutter/material.dart';
-import 'player_lives.dart'; // Asegúrate de tener este widget para mostrar las vidas
+import 'player_lives.dart'; // Importar el archivo donde está el widget de las vidas
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -16,7 +16,6 @@ class _HomePageState extends State<HomePage> {
   int playerPosition = 0;
   int bombPosition = -1;
   int lives = 3; // El jugador comienza con 3 vidas.
-  
   List<int> barriers = [
     11, 13, 15, 17, 18, 31, 33, 35, 37, 38,
     51, 53, 55, 57, 58, 71, 73, 75, 77, 78,
@@ -28,9 +27,8 @@ class _HomePageState extends State<HomePage> {
     47, 39, 19, 1, 30, 50, 70, 121, 100, 96,
     79, 99, 107, 7, 3
   ];
-  List<int> fire = [-1]; // Inicializa la lista de fuego
+  List<int> fire = [-1];
 
-  // Movimientos del jugador
   void moveUp() {
     setState(() {
       if (playerPosition - 10 >= 0 &&
@@ -71,83 +69,76 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  // Colocar bomba
   void placeBomb() {
-    if (bombPosition == -1) {
-      setState(() {
-        bombPosition = playerPosition; // Asigna la posición de la bomba
-        fire.clear(); // Limpiar la lista de fuego
+    setState(() {
+      bombPosition = playerPosition;
+      fire.clear();
+      if(bombPosition != -1){}
 
-        Timer(const Duration(milliseconds: 1000), () {
-          setState(() {
-            fire.add(bombPosition); // Añadir la bomba al fuego
-            addExplosionInDirection(bombPosition, 1, 1);  // Derecha
-            addExplosionInDirection(bombPosition, -1, 1); // Izquierda
-            addExplosionInDirection(bombPosition, 10, 1); // Abajo
-            addExplosionInDirection(bombPosition, -10, 1); // Arriba
-          });
-
-          clearFire(); // Limpiar fuego después de un tiempo
+      Timer(const Duration(milliseconds: 1000), () {
+        setState(() {
+          fire.add(bombPosition);
+          addExplosionInDirection(bombPosition, 1, 1);  // Derecha
+          addExplosionInDirection(bombPosition, -1, 1); // Izquierda
+          addExplosionInDirection(bombPosition, 10, 1); // Abajo
+          addExplosionInDirection(bombPosition, -10, 1); // Arriba
         });
+        clearFire();
       });
-    }
+    });
   }
 
-  // Agregar explosión en una dirección
   void addExplosionInDirection(int start, int step, int range) {
     for (int i = 1; i <= range; i++) {
       int nextPosition = start + step * i;
 
+      // Verificar si la posición está dentro de los límites del mapa
       if (nextPosition < 0 || nextPosition >= numberOfSquares) break;
 
+      // Verificar si la explosión cruza los límites horizontales (Izquierda o Derecha)
       if (step == 1 && nextPosition % 10 == 0) break; // Cruce hacia la derecha
       if (step == -1 && nextPosition % 10 == 9) break; // Cruce hacia la izquierda
 
-      if (barriers.contains(nextPosition)) break; // Detener en barreras
+      // Detener si encuentra una barrera
+      if (barriers.contains(nextPosition)) break;
 
+      // Añadir posición afectada por la explosión
       fire.add(nextPosition);
 
+      // Si encuentra una caja, detén la explosión y elimínala
       if (boxes.contains(nextPosition)) {
-        boxes.remove(nextPosition); // Eliminar caja
+        boxes.remove(nextPosition);
         break;
       }
     }
   }
 
-  // Limpiar el fuego
   void clearFire() {
     Timer(const Duration(milliseconds: 500), () {
       setState(() {
+        // Verificar si el jugador está en la explosión
         if (fire.contains(playerPosition)) {
-          lives--; // Pierde una vida si está en la explosión
+          lives--; // Reduce una vida
           if (lives == 0) {
             showGameOverDialog(); // Mostrar "Game Over"
           }
         }
 
-        fire.clear(); // Limpiar fuego
-        bombPosition = -1; // Eliminar bomba
+        fire.clear();
+        bombPosition = -1;
       });
     });
   }
 
-  // Resetear el juego
   void resetGame() {
     setState(() {
-      lives = 3; // Restablecer vidas
-      playerPosition = 0; // Restablecer la posición del jugador
+      lives = 3; // Reiniciar las vidas
+      playerPosition = 0; // Reiniciar la posición del jugador
       bombPosition = -1; // Eliminar bombas activas
-      fire.clear(); // Limpiar fuego
-      boxes = [
-        12, 14, 16, 28, 21, 41, 61, 81, 101, 11,
-        114, 116, 119, 127, 123, 103, 83, 63, 65, 67,
-        47, 39, 19, 1, 30, 50, 70, 121, 100, 96,
-        79, 99, 107, 7, 3
-      ]; // Restablecer cajas
+      fire.clear(); // Eliminar fuego
     });
   }
 
-  // Mostrar "Game Over" y reiniciar el juego
   void showGameOverDialog() {
     showDialog(
       context: context,
@@ -157,8 +148,8 @@ class _HomePageState extends State<HomePage> {
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.pop(context); // Cerrar diálogo
-              resetGame(); // Reiniciar el juego completamente
+              Navigator.pop(context); // Cerrar el cuadro de diálogo
+              resetGame(); // Reiniciar el juego
             },
             child: const Text("Reiniciar"),
           ),
@@ -173,7 +164,6 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: Colors.grey[800],
       body: Stack(
         children: [
-          // Parte del juego: el grid donde se mueve el jugador y se colocan los elementos
           Column(
             children: [
               Expanded(
@@ -196,7 +186,7 @@ class _HomePageState extends State<HomePage> {
                         outerColor: Colors.green[800],
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: Image.asset('lib/images/Pokeball.png'), // Imagen de la bomba
+                          child: Image.asset('lib/images/bomb1.png'),
                         ),
                       );
                     } else if (playerPosition == index) {
@@ -205,7 +195,7 @@ class _HomePageState extends State<HomePage> {
                         outerColor: Colors.green[800],
                         child: Padding(
                           padding: const EdgeInsets.all(4.0),
-                          child: Image.asset('lib/images/528079.png'), // Imagen del jugador
+                          child: Image.asset('lib/images/Down1.png'),
                         ),
                       );
                     } else if (barriers.contains(index)) {
@@ -229,8 +219,9 @@ class _HomePageState extends State<HomePage> {
               ),
             ],
           ),
-          PlayerLives(lives: lives), // Mostrar las vidas en la parte superior derecha
-          // Controles de movimiento y bomba
+          // Llamamos al widget PlayerLives para mostrar las vidas en la parte superior derecha
+          PlayerLives(lives: lives),
+          // Aquí colocamos los botones de control
           Positioned(
             bottom: 10,
             left: 10,
@@ -283,7 +274,7 @@ class _HomePageState extends State<HomePage> {
                         child: Padding(
                           padding: const EdgeInsets.all(10.0),
                           child: Image.asset(
-                            'lib/images/Pokeball.png', // Icono de la bomba
+                            'lib/images/bomb1.png',
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -307,7 +298,7 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(1.0),
-                      child: MyButton(), // Espaciador
+                      child: MyButton(),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(1.0),
@@ -322,7 +313,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                     Padding(
                       padding: const EdgeInsets.all(1.0),
-                      child: MyButton(), // Espaciador
+                      child: MyButton(),
                     ),
                   ],
                 ),

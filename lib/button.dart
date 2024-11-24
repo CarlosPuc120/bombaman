@@ -6,7 +6,7 @@ class MyButton extends StatelessWidget {
   final Color;
   final function;
 
-  MyButton({this.Color, this.child, this.function});
+  MyButton({this.Color, this.child, this.function, });
 
 
   @override
